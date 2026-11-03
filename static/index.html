@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Waste schedule</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Shared icon definitions, used with <use href="#icon-copy">. -->
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="icon-copy" viewBox="0 0 24 24">
+      <rect x="9" y="9" width="13" height="13" rx="2"/>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+    </symbol>
+  </svg>
+
+  <main>
+    <h1>Waste schedule</h1>
+
+    <section>
+      <h2>Upload PDF</h2>
+      <input type="file" id="file" accept="application/pdf,.pdf">
+      <div class="row">
+        <label>Recurrences end at <input type="date" id="until"></label>
+        <label><input type="checkbox" id="omit"> Leave out empty categories</label>
+      </div>
+      <div class="row">
+        <button class="primary" id="up" disabled>Upload</button>
+        <span id="upmsg"></span>
+      </div>
+    </section>
+
+    <!-- Shown after a successful upload. -->
+    <div id="result" hidden>
+      <section>
+        <h2>Generated YAML</h2>
+        <div id="notes" class="mut notes"></div>
+        <div class="codebox">
+          <button class="copybtn" id="copynew" title="Copy" aria-label="Copy">
+            <svg class="icon"><use href="#icon-copy"/></svg>
+          </button>
+          <span class="tip" id="tipnew">Copied</span>
+          <pre id="newyaml"></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>Changes</h2>
+        <div class="mut">Compared with the persisted schedule below.</div>
+        <pre id="diff"></pre>
+      </section>
+
+      <section>
+        <h2>Persist</h2>
+        <div class="mut">
+          Stores this YAML in the add-on, replacing the persisted schedule below.
+          The previous version is kept for roll back.
+        </div>
+        <div class="row">
+          <button class="primary" id="persist">Persist</button>
+          <span id="pmsg"></span>
+        </div>
+      </section>
+    </div>
+
+    <section>
+      <details id="pers">
+        <summary>
+          <span class="chev"></span>
+          <h2>Persisted schedule</h2>
+          <span id="cursum" class="mut"></span>
+        </summary>
+        <div id="curtxt" class="mut">Loading...</div>
+        <div class="row">
+          <button id="rb" disabled>Roll back to previous</button>
+        </div>
+        <div class="codebox" id="curbox" hidden>
+          <button class="copybtn" id="copycur" title="Copy" aria-label="Copy">
+            <svg class="icon"><use href="#icon-copy"/></svg>
+          </button>
+          <span class="tip" id="tipcur">Copied</span>
+          <pre id="curyaml"></pre>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

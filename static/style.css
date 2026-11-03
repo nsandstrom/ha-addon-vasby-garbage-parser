@@ -1,0 +1,247 @@
+/* Waste schedule add-on page. */
+
+/* --- theme -------------------------------------------------------------- */
+:root {
+  --bg: #fff;
+  --fg: #1b1d1f;
+  --muted: #6a7178;
+  --border: #d5d9de;
+  --accent: #0b6bcb;
+  --card: #f5f6f8;
+  --ok: #1a7f37;
+  --err: #c62828;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16181a;
+    --fg: #e6e8ea;
+    --muted: #9aa1a8;
+    --border: #33383d;
+    --accent: #5aa9ff;
+    --card: #202327;
+    --ok: #4cc26a;
+    --err: #ff6b6b;
+  }
+}
+
+/* --- base --------------------------------------------------------------- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 system-ui, sans-serif;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+section {
+  margin-bottom: 14px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+label {
+  display: inline-block;
+  margin-right: 14px;
+}
+
+input[type="date"] {
+  padding: 3px 6px;
+  font: inherit;
+}
+
+pre {
+  max-height: 340px;
+  margin: 8px 0 0;
+  padding: 10px;
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: 12.5px/1.45 ui-monospace, monospace;
+  white-space: pre;
+}
+
+/* --- helpers ------------------------------------------------------------ */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.mut { color: var(--muted); }
+.ok  { color: var(--ok); }
+.err { color: var(--err); }
+
+.notes {
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+}
+
+#upmsg {
+  white-space: pre-wrap;
+}
+
+/* Diff lines. */
+.add { color: var(--ok); }
+.del { color: var(--err); }
+
+/* --- buttons ------------------------------------------------------------ */
+button {
+  padding: 7px 14px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* --- YAML box with copy button ------------------------------------------ */
+.codebox {
+  position: relative;
+  margin-top: 30px; /* room for the "Copied" bubble above the box */
+}
+
+.codebox pre {
+  margin: 0;
+  padding-right: 70px; /* keep text clear of the copy button */
+}
+
+.copybtn {
+  position: absolute;
+  top: 8px;
+  right: 20px; /* clears the scrollbar */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--accent);
+  border-color: var(--accent);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.copybtn:hover {
+  filter: brightness(1.1);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The shared icon definitions; never displayed itself. */
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* "Copied" bubble with a small tail pointing at the button. */
+.tip {
+  position: absolute;
+  top: -28px;
+  right: 10px;
+  padding: 3px 14px;
+  background: var(--accent);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.tip::after {
+  content: "";
+  position: absolute;
+  right: 26px;
+  bottom: -5px;
+  border: 6px solid transparent;
+  border-top-color: var(--accent);
+  border-bottom: 0;
+}
+
+.tip.show {
+  opacity: 1;
+}
+
+/* --- collapsible card ---------------------------------------------------- */
+details > summary {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary h2 {
+  margin: 0;
+}
+
+details[open] > summary {
+  margin-bottom: 10px;
+}
+
+/* Chevron: points right when closed, down when open. */
+.chev {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px 3px 2px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+details[open] > summary .chev {
+  transform: rotate(45deg) translate(-2px, -2px);
+}
