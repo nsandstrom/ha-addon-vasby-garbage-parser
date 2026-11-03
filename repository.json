@@ -1,0 +1,5 @@
+{
+  "name": "Home Assistant App: Väsby Garbage Schedule Parser",
+  "url": "https://github.com/nsandstrom/ha-addon-vasby-garbage-parser",
+  "maintainer": "Niklas Sandström <mr.n.sandstrom@gmail.com>"
+}
