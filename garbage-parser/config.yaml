@@ -1,5 +1,5 @@
 name: Waste Schedule PDF
-version: "0.2.0"
+version: "0.3.0"
 slug: waste_schedule
 description: Turn the waste collection PDF into Waste Collection Schedule YAML for Home Assistant
 arch:
