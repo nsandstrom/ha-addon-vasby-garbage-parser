@@ -21,14 +21,16 @@ from datetime import date, datetime, timedelta
 
 # --- Swedish -> English mapping (the only place Swedish lives) --------------
 # (substring to look for in lowercase PDF name, English type, sensor name,
-#  force_dates: always emit a plain date list, e.g. seasonal services)
+#  force_dates: always emit a plain date list, e.g. seasonal services,
+#  optional: not part of the standard package; only handled when asked for
+#  with --garden-waste, and otherwise always left out)
 SERVICES = [
-    ("matavfall", "Food Waste", "food_waste", False),
-    ("restavfall", "Residual Waste", "residual_waste", False),
-    ("trädgård", "Garden Waste", "garden_waste", True),
-    ("glas", "Glass", "glass", False),
-    ("metall", "Metal", "metal", False),
-    ("papper", "Paper & Plastic", "paper_plastic", False),
+    ("restavfall", "Residual Waste", "residual_waste", False, False),
+    ("matavfall", "Food Waste", "food_waste", False, False),
+    ("glas", "Glass", "glass", False, False),
+    ("metall", "Metal", "metal", False, False),
+    ("papper", "Paper & Plastic", "paper_plastic", False, False),
+    ("trädgård", "Garden Waste", "garden_waste", True, True),
 ]
 
 MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "maj": 5, "jun": 6,
@@ -113,7 +115,7 @@ def detect_interval_weeks(dates):
 
 def lookup(name):
     low = name.lower()
-    for key, eng, sensor, force in SERVICES:
+    for key, eng, sensor, force, _optional in SERVICES:
         if key in low:
             return eng, sensor, force
     return None
@@ -197,6 +199,9 @@ def main():
     ap.add_argument("-o", "--output", default="waste_collection_schedule.yaml")
     ap.add_argument("--until", help="end date (YYYY-MM-DD) for recurring "
                     "schedules; default = last date in the PDF")
+    ap.add_argument("--garden-waste", action="store_true",
+                    help="also handle Garden Waste (not part of the standard "
+                    "package). Default: it is always left out")
     ap.add_argument("--omit-empty", action="store_true",
                     help="leave empty/missing services out entirely (their "
                     "sensors disappear from HA and source_index shifts); "
@@ -217,10 +222,14 @@ def main():
             found[eng] = dict(id=sid, type=eng, sensor=sensor, force=force,
                               dates=dates)
 
-    # Always walk the full SERVICES table in fixed order, so source_index and
-    # entity names stay the same whatever the PDF contains.
+    # Walk the full SERVICES table in fixed order, so source_index and entity
+    # names stay the same whatever the PDF contains. Optional services are
+    # left out entirely unless asked for; once asked for they behave like the
+    # others (placeholder when empty).
     entries = []
-    for _key, eng, sensor, force in SERVICES:
+    for _key, eng, sensor, force, optional in SERVICES:
+        if optional and not a.garden_waste:
+            continue
         e = found.get(eng)
         if e is None:
             e = dict(id=None, type=eng, sensor=sensor, force=force, dates=[])

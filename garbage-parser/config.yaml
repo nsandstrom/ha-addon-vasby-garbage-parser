@@ -11,5 +11,9 @@ ingress: true
 ingress_port: 8099
 panel_icon: mdi:trash-can-outline
 panel_title: Waste schedule
+options:
+  garden_waste: false
+schema:
+  garden_waste: bool
 # Deliberately absent: map, ports, homeassistant_api, hassio_api, auth_api.
 # The add-on has no access to /config, no token, and publishes no port.

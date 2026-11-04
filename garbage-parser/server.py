@@ -75,6 +75,7 @@ configure(os.environ.get("WASTE_DATA_DIR") or user_data_dir(),
           split_list(os.environ.get("WASTE_UI_ALLOWED_IPS")))
 
 FILE_PORT = 8100  # set by main()
+GARDEN_WASTE = False  # set by main(): also handle Garden Waste
 LOCK = threading.Lock()
 
 
@@ -126,6 +127,8 @@ def make_preview(pdf_bytes, filename, until, omit_empty):
             cmd += ["--until", until]
         if omit_empty:
             cmd.append("--omit-empty")
+        if GARDEN_WASTE:
+            cmd.append("--garden-waste")
         try:
             r = subprocess.run(cmd, capture_output=True, text=True,
                                timeout=60, cwd=tmp)
@@ -335,14 +338,23 @@ def main():
     ap.add_argument("--file-port", type=int,
                     default=int(os.environ.get("WASTE_FILE_PORT", "8100")),
                     help="read-only file server [WASTE_FILE_PORT] (default 8100)")
+    ap.add_argument("--options-file", default=os.environ.get("WASTE_OPTIONS_FILE"),
+                    help="JSON file with the add-on options [WASTE_OPTIONS_FILE]; "
+                    "key: garden_waste (true/false, default false)")
+    ap.add_argument("--garden-waste", action="store_true",
+                    default=os.environ.get("WASTE_GARDEN_WASTE", "") == "1",
+                    help="also handle Garden Waste [WASTE_GARDEN_WASTE=1]; "
+                    "can also be set in the options file")
     ap.add_argument("--allow", default=os.environ.get("WASTE_UI_ALLOWED_IPS", ""),
                     help="comma-separated client addresses the UI accepts "
                     "[WASTE_UI_ALLOWED_IPS] (default: any; the listen address "
                     "is then the only restriction)")
     a = ap.parse_args()
 
-    global FILE_PORT
+    global FILE_PORT, GARDEN_WASTE
     FILE_PORT = a.file_port
+    options = (read_json(a.options_file) if a.options_file else None) or {}
+    GARDEN_WASTE = a.garden_waste or options.get("garden_waste") is True
     configure(a.data_dir or user_data_dir(), split_list(a.allow))
     os.makedirs(DATA, exist_ok=True)
 
@@ -352,7 +364,8 @@ def main():
     clients = ", ".join(sorted(ALLOWED)) or "any"
     print(f"Data dir:    {DATA}\n"
           f"UI:          http://{a.host}:{a.ui_port}/  (clients: {clients})\n"
-          f"File server: http://{a.host}:{a.file_port}/sources.yaml", flush=True)
+          f"File server: http://{a.host}:{a.file_port}/sources.yaml\n"
+          f"Garden Waste: {'handled' if GARDEN_WASTE else 'left out'}", flush=True)
     try:
         ui.serve_forever()
     except KeyboardInterrupt:
